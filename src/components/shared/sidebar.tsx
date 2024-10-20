@@ -1,7 +1,7 @@
-
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import {
     Dialog,
     DialogBackdrop,
@@ -18,64 +18,84 @@ import { XMarkIcon } from '@heroicons/react/24/outline'
 import { ChevronDownIcon, FunnelIcon, MinusIcon, PlusIcon } from '@heroicons/react/20/solid'
 
 const sortOptions = [
-    { name: 'Most Popular', href: '#', current: true },
-    { name: 'Best Rating', href: '#', current: false },
-    { name: 'Newest', href: '#', current: false },
-    { name: 'Price: Low to High', href: '#', current: false },
-    { name: 'Price: High to Low', href: '#', current: false },
+    { name: 'Newest', value: 'newest', current: false },
+    { name: 'Price: Low to High', value: 'low-to-high', current: false },
+    { name: 'Price: High to Low', value: 'high-to-low', current: false },
 ]
-const subCategories = [
-    { name: 'Totes', href: '#' },
-    { name: 'Backpacks', href: '#' },
-    { name: 'Travel Bags', href: '#' },
-    { name: 'Hip Bags', href: '#' },
-    { name: 'Laptop Sleeves', href: '#' },
-]
+
 const filters = [
     {
-        id: 'color',
-        name: 'Color',
+        id: 'author',
+        name: 'Author',
         options: [
-            { value: 'white', label: 'White', checked: false },
-            { value: 'beige', label: 'Beige', checked: false },
-            { value: 'blue', label: 'Blue', checked: true },
-            { value: 'brown', label: 'Brown', checked: false },
-            { value: 'green', label: 'Green', checked: false },
-            { value: 'purple', label: 'Purple', checked: false },
+            { value: 'jkr', label: 'J.K. Rowling', checked: false },
+            { value: 'grrm', label: 'George R.R. Martin', checked: false },
+            { value: 'jrrt', label: 'J.R.R. Tolkien', checked: false },
+            { value: 'cslewis', label: 'C.S. Lewis', checked: false },
+            { value: 'atwood', label: 'Margaret Atwood', checked: false },
+            { value: 'hemingway', label: 'Ernest Hemingway', checked: false },
         ],
     },
     {
-        id: 'category',
-        name: 'Category',
+        id: 'genre',
+        name: 'Genre',
         options: [
-            { value: 'new-arrivals', label: 'New Arrivals', checked: false },
-            { value: 'sale', label: 'Sale', checked: false },
-            { value: 'travel', label: 'Travel', checked: true },
-            { value: 'organization', label: 'Organization', checked: false },
-            { value: 'accessories', label: 'Accessories', checked: false },
+            { value: 'fiction', label: 'Fiction', checked: false },
+            { value: 'non-fiction', label: 'Non-Fiction', checked: false },
+            { value: 'fantasy', label: 'Fantasy', checked: false },
+            { value: 'mystery', label: 'Mystery', checked: false },
+            { value: 'biography', label: 'Biography', checked: false },
+            { value: 'science-fiction', label: 'Science Fiction', checked: false },
         ],
     },
     {
-        id: 'size',
-        name: 'Size',
+        id: 'publicationDate',
+        name: 'Publication Date',
         options: [
-            { value: '2l', label: '2L', checked: false },
-            { value: '6l', label: '6L', checked: false },
-            { value: '12l', label: '12L', checked: false },
-            { value: '18l', label: '18L', checked: false },
-            { value: '20l', label: '20L', checked: false },
-            { value: '40l', label: '40L', checked: true },
+            { value: 'last-year', label: 'Last 1 Year', checked: false },
+            { value: 'last-5-years', label: 'Last 5 Years', checked: false },
+            { value: 'last-10-years', label: 'Last 10 Years', checked: false },
+            { value: 'older', label: 'Older', checked: false },
         ],
     },
 ]
+
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 function classNames(...classes) {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     return classes.filter(Boolean).join(' ')
 }
 
 export default function Example() {
     const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false)
+    const router = useRouter();
+    const handleFilterChange = (sectionId: string, value: string, checked: boolean) => {
+
+        const currentParams = new URLSearchParams(window.location.search);
+
+        const existingFilters = currentParams.getAll(sectionId);
+
+        if (checked) {
+            currentParams.append(sectionId, value);
+        } else {
+            const newFilters = existingFilters.filter((filter) => filter !== value);
+            currentParams.delete(sectionId);
+            newFilters.forEach((filter) => currentParams.append(sectionId, filter));
+        }
+
+        router.push(`?${currentParams.toString()}`);
+    };
+    const handleSortChange = (sortValue: string) => {
+
+        const currentParams = new URLSearchParams(window.location.search);
+
+        currentParams.set('sort', sortValue);
+
+        router.push(`?${currentParams.toString()}`);
+    };
+
 
     return (
         <div className="bg-white">
@@ -107,15 +127,6 @@ export default function Example() {
                             {/* Filters */}
                             <form className="mt-4 border-t border-gray-200">
                                 <h3 className="sr-only">Categories</h3>
-                                <ul role="list" className="px-2 py-3 font-medium text-gray-900">
-                                    {subCategories.map((category) => (
-                                        <li key={category.name}>
-                                            <a href={category.href} className="block px-2 py-3">
-                                                {category.name}
-                                            </a>
-                                        </li>
-                                    ))}
-                                </ul>
 
                                 {filters.map((section) => (
                                     <Disclosure key={section.id} as="div" className="border-t border-gray-200 px-4 py-6">
@@ -128,7 +139,7 @@ export default function Example() {
                                                 </span>
                                             </DisclosureButton>
                                         </h3>
-                                        <DisclosurePanel >
+                                        <DisclosurePanel>
                                             <div className="space-y-6">
                                                 {section.options.map((option, optionIdx) => (
                                                     <div key={option.value} className="flex items-center">
@@ -139,6 +150,7 @@ export default function Example() {
                                                             name={`${section.id}[]`}
                                                             type="checkbox"
                                                             className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                                                            onChange={(e) => handleFilterChange(section.id, option.value, e.target.checked)} // Call handleFilterChange
                                                         />
                                                         <label
                                                             htmlFor={`filter-mobile-${section.id}-${optionIdx}`}
@@ -156,6 +168,7 @@ export default function Example() {
                         </DialogPanel>
                     </div>
                 </Dialog>
+
 
                 <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-4">
                     <div className="flex items-baseline justify-between border-b border-gray-200 pb-6">
@@ -179,16 +192,17 @@ export default function Example() {
                                 >
                                     <div className="py-1">
                                         {sortOptions.map((option) => (
-                                            <MenuItem key={option.name}>
-                                                <a
-                                                    href={option.href}
+                                            <MenuItem key={option.name}
+                                            >
+                                                <button
+                                                    onClick={() => handleSortChange(option.value)}
                                                     className={classNames(
                                                         option.current ? 'font-medium text-gray-900' : 'text-gray-500',
                                                         'block px-4 py-2 text-sm data-[focus]:bg-gray-100',
                                                     )}
                                                 >
                                                     {option.name}
-                                                </a>
+                                                </button>
                                             </MenuItem>
                                         ))}
                                     </div>
@@ -214,13 +228,6 @@ export default function Example() {
                             {/* Filters */}
                             <form className="hidden lg:block">
                                 <h3 className="sr-only">Categories</h3>
-                                <ul role="list" className="space-y-4 border-b border-gray-200 pb-6 text-sm font-medium text-gray-900">
-                                    {subCategories.map((category) => (
-                                        <li key={category.name}>
-                                            <a href={category.href}>{category.name}</a>
-                                        </li>
-                                    ))}
-                                </ul>
 
                                 {filters.map((section) => (
                                     <Disclosure key={section.id} as="div" className="border-b border-gray-200 py-6">
@@ -244,6 +251,7 @@ export default function Example() {
                                                             name={`${section.id}[]`}
                                                             type="checkbox"
                                                             className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                                                            onChange={(e) => handleFilterChange(section.id, option.value, e.target.checked)} // Call handleFilterChange
                                                         />
                                                         <label htmlFor={`filter-${section.id}-${optionIdx}`} className="ml-3 text-sm text-gray-600">
                                                             {option.label}
@@ -256,12 +264,11 @@ export default function Example() {
                                 ))}
                             </form>
 
-                            {/* Product grid */}
                             <div className="lg:col-span-3">{/* Your content */}</div>
                         </div>
                     </section>
                 </main>
-            </div >
-        </div >
+            </div>
+        </div>
     )
 }
