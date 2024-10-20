@@ -21,7 +21,11 @@ const Header = () => {
     };
 
     return (
-        <div className="sticky z-50 top-5 mx-10">
+        <motion.div className="sticky z-50 top-5 mx-10"
+            initial={{ scaleX: 0 }}
+            animate={{ scaleX: 1 }}
+            transition={{ duration: 0.6, delay: 0.5 }}
+        >
             <div className="container mx-auto">
                 <nav className="block w-full max-w-screen-2xl rounded-xl py-4 px-8 backdrop-saturate-200 backdrop-blur-2xl bg-opacity-80 border-white/80 bg-white text-white relative z-50 mt-6 border-0">
                     <div className="container flex items-center justify-between mx-auto">
@@ -164,7 +168,7 @@ const Header = () => {
                                 </li>
                             </ul>
                             <div className="flex items-center gap-4 mt-6 mb-4">
-                         
+
                                 <button
                                     className="align-middle select-none font-sans font-bold text-center uppercase transition-all disabled:opacity-50 disabled:shadow-none disabled:pointer-events-none text-xs py-3 px-6 rounded-lg bg-gray-900 text-white shadow-md shadow-gray-900/10 hover:shadow-lg hover:shadow-gray-900/20 focus:opacity-[0.85] focus:shadow-none active:opacity-[0.85] active:shadow-none"
                                     type="button"
@@ -176,7 +180,7 @@ const Header = () => {
                     </motion.div>
                 </nav>
             </div>
-        </div>
+        </motion.div>
     );
 };
 
