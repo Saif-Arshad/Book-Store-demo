@@ -1,4 +1,5 @@
-'use client'
+/* eslint-disable @typescript-eslint/ban-ts-comment */
+"use client"
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
@@ -16,6 +17,10 @@ import {
 } from '@headlessui/react'
 import { XMarkIcon } from '@heroicons/react/24/outline'
 import { ChevronDownIcon, FunnelIcon, MinusIcon, PlusIcon } from '@heroicons/react/20/solid'
+import { DualRangeSlider } from '../ui/Dual-Slider'
+import useUpdateSearchParams from '@/Hooks/use-update-search'
+import SearchInput from './search-input'
+
 
 const sortOptions = [
     { name: 'Newest', value: 'newest', current: false },
@@ -48,31 +53,21 @@ const filters = [
             { value: 'science-fiction', label: 'Science Fiction', checked: false },
         ],
     },
-    {
-        id: 'publicationDate',
-        name: 'Publication Date',
-        options: [
-            { value: 'last-year', label: 'Last 1 Year', checked: false },
-            { value: 'last-5-years', label: 'Last 5 Years', checked: false },
-            { value: 'last-10-years', label: 'Last 10 Years', checked: false },
-            { value: 'older', label: 'Older', checked: false },
-        ],
-    },
+
 ]
 
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
-function classNames(...classes) {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
+function classNames(...classes: string[]): string {
     return classes.filter(Boolean).join(' ')
 }
 
 export default function Example() {
+    const { updateSearchParams } = useUpdateSearchParams();
     const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false)
+    const [openSection, setOpenSection] = useState<string | null>(null);
+    const [yearRange, setYearRange] = useState<number[]>([1950, 2023]);
     const router = useRouter();
-    const handleFilterChange = (sectionId: string, value: string, checked: boolean) => {
 
+    const handleFilterChange = (sectionId: string, value: string, checked: boolean) => {
         const currentParams = new URLSearchParams(window.location.search);
 
         const existingFilters = currentParams.getAll(sectionId);
@@ -87,20 +82,24 @@ export default function Example() {
 
         router.push(`?${currentParams.toString()}`);
     };
+
     const handleSortChange = (sortValue: string) => {
-
         const currentParams = new URLSearchParams(window.location.search);
-
         currentParams.set('sort', sortValue);
-
         router.push(`?${currentParams.toString()}`);
     };
 
+    const handleSliderChange = (newRange: number[]) => {
+        setYearRange(newRange);
+
+        const currentParams = new URLSearchParams(window.location.search);
+        currentParams.set('publicationDate', `${newRange[0]}-${newRange[1]}`); // Save year range in URL
+        router.push(`?${currentParams.toString()}`);
+    };
 
     return (
         <div className="bg-white">
             <div>
-                {/* Mobile filter dialog */}
                 <Dialog open={mobileFiltersOpen} onClose={setMobileFiltersOpen} className="relative z-40 lg:hidden">
                     <DialogBackdrop
                         transition
@@ -110,7 +109,7 @@ export default function Example() {
                     <div className="fixed inset-0 z-40 flex">
                         <DialogPanel
                             transition
-                            className="relative ml-auto flex h-full w-full max-w-xs transform flex-col overflow-y-auto bg-white py-4 pb-12 shadow-xl transition duration-300 ease-in-out data-[closed]:translate-x-full"
+                            className="relative ml-auto  flex h-full w-full max-w-xs transform flex-col overflow-y-auto bg-white p-4 pb-12 shadow-xl transition duration-300 ease-in-out data-[closed]:translate-x-full"
                         >
                             <div className="flex items-center justify-between px-4">
                                 <h2 className="text-lg font-medium text-gray-900">Filters</h2>
@@ -126,49 +125,92 @@ export default function Example() {
 
                             {/* Filters */}
                             <form className="mt-4 border-t border-gray-200">
-                                <h3 className="sr-only">Categories</h3>
+                                <SearchInput
+                                    name="users"
+                                    callback={(value) => updateSearchParams("query", value)}
+                                />
 
+
+                                <h4 className="text-sm font-medium text-gray-700 mb-8 ">Publication Year</h4>
+                                <DualRangeSlider
+                                    label={(value) => value}
+                                    value={yearRange}
+                                    onValueChange={handleSliderChange}
+                                    min={1950}
+                                    max={2023}
+                                    step={1}
+                                />
                                 {filters.map((section) => (
-                                    <Disclosure key={section.id} as="div" className="border-t border-gray-200 px-4 py-6">
-                                        <h3 className="-mx-2 -my-3 flow-root">
-                                            <DisclosureButton className="group flex w-full items-center justify-between bg-white px-2 py-3 text-gray-400 hover:text-gray-500">
-                                                <span className="font-medium text-gray-900">{section.name}</span>
-                                                <span className="ml-6 flex items-center">
-                                                    <PlusIcon aria-hidden="true" className="h-5 w-5 group-data-[open]:hidden" />
-                                                    <MinusIcon aria-hidden="true" className="h-5 w-5 [.group:not([data-open])_&]:hidden" />
-                                                </span>
-                                            </DisclosureButton>
-                                        </h3>
-                                        <DisclosurePanel>
-                                            <div className="space-y-6">
-                                                {section.options.map((option, optionIdx) => (
-                                                    <div key={option.value} className="flex items-center">
-                                                        <input
-                                                            defaultValue={option.value}
-                                                            defaultChecked={option.checked}
-                                                            id={`filter-mobile-${section.id}-${optionIdx}`}
-                                                            name={`${section.id}[]`}
-                                                            type="checkbox"
-                                                            className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
-                                                            onChange={(e) => handleFilterChange(section.id, option.value, e.target.checked)} // Call handleFilterChange
-                                                        />
-                                                        <label
-                                                            htmlFor={`filter-mobile-${section.id}-${optionIdx}`}
-                                                            className="ml-3 min-w-0 flex-1 text-gray-500"
-                                                        >
-                                                            {option.label}
-                                                        </label>
+                                    <Disclosure
+                                        key={section.id}
+                                        as="div"
+                                        className="border-t border-gray-200 px-4 py-6"
+                                        // @ts-ignore
+                                        open={openSection === section.id}
+                                        onClick={() => setOpenSection(openSection === section.id ? null : section.id)}
+                                    >
+                                        {({ open }) => (
+                                            <>
+                                                <h3 className="-mx-2 -my-3 flow-root">
+                                                    <DisclosureButton className="group flex w-full items-center justify-between bg-white px-2 py-3 text-gray-400 hover:text-gray-500">
+                                                        <span className="font-medium text-gray-900">{section.name}</span>
+                                                        <span className="ml-6 flex items-center">
+                                                            {open ? (
+                                                                <MinusIcon aria-hidden="true" className="h-5 w-5" />
+                                                            ) : (
+                                                                <PlusIcon aria-hidden="true" className="h-5 w-5" />
+                                                            )}
+                                                        </span>
+                                                    </DisclosureButton>
+                                                </h3>
+
+                                                <DisclosurePanel>
+                                                    <div className="space-y-6">
+                                                        {section.id === 'publicationDate' ? (
+                                                            <div>
+
+                                                                {/* <div className="flex justify-between text-xs text-gray-500">
+                                                                    <span>{yearRange[0]}</span>
+                                                                    <span>{yearRange[1]}</span>
+                                                                </div> */}
+                                                            </div>
+                                                        ) : (
+                                                            section.options.map((option, optionIdx) => (
+                                                                <div key={option.value} className="flex items-center">
+                                                                    <input
+                                                                        defaultValue={option.value}
+                                                                        defaultChecked={option.checked}
+                                                                        id={`filter-mobile-${section.id}-${optionIdx}`}
+                                                                        name={`${section.id}[]`}
+                                                                        type="checkbox"
+                                                                        className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                                                                        onChange={(e) => handleFilterChange(section.id, option.value, e.target.checked)} // Call handleFilterChange
+                                                                    />
+                                                                    <label
+                                                                        htmlFor={`filter-mobile-${section.id}-${optionIdx}`}
+                                                                        className="ml-3 min-w-0 flex-1 text-gray-500"
+                                                                    >
+                                                                        {option.label}
+                                                                    </label>
+                                                                </div>
+                                                            ))
+                                                        )}
                                                     </div>
-                                                ))}
-                                            </div>
-                                        </DisclosurePanel>
+                                                </DisclosurePanel>
+                                            </>
+                                        )}
                                     </Disclosure>
                                 ))}
+
+                                <div
+                                    onClick={() => router.push("/")}
+                                    className='w-full mt-4 items-center flex  border p-2 hover:bg-black hover:text-white cursor-pointer   justify-center  rounded-lg'>
+                                    Clear Filters
+                                </div>
                             </form>
                         </DialogPanel>
                     </div>
                 </Dialog>
-
 
                 <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-4">
                     <div className="flex items-baseline justify-between border-b border-gray-200 pb-6">
@@ -192,8 +234,7 @@ export default function Example() {
                                 >
                                     <div className="py-1">
                                         {sortOptions.map((option) => (
-                                            <MenuItem key={option.name}
-                                            >
+                                            <MenuItem key={option.name}>
                                                 <button
                                                     onClick={() => handleSortChange(option.value)}
                                                     className={classNames(
@@ -220,48 +261,94 @@ export default function Example() {
                     </div>
 
                     <section aria-labelledby="products-heading" className="pb-24 pt-6">
-                        <h2 id="products-heading" className="sr-only">
-                            Products
-                        </h2>
+                        <h2 id="products-heading" className="sr-only">Products</h2>
 
                         <div className="grid grid-cols-1 gap-x-8 gap-y-10 lg:grid-cols-4">
-                            {/* Filters */}
                             <form className="hidden lg:block">
-                                <h3 className="sr-only">Categories</h3>
 
+                                <SearchInput
+                                    name="users"
+                                    callback={(value) => updateSearchParams("query", value)}
+                                />
+
+
+
+
+
+                                <h4 className="text-sm font-medium text-gray-700 mb-9">Publication Year</h4>
+
+                                <DualRangeSlider
+                                    label={(value) => value}
+                                    value={yearRange}
+                                    onValueChange={handleSliderChange}
+                                    min={1950}
+                                    max={2023}
+                                    step={1}
+                                />
                                 {filters.map((section) => (
-                                    <Disclosure key={section.id} as="div" className="border-b border-gray-200 py-6">
-                                        <h3 className="-my-3 flow-root">
-                                            <DisclosureButton className="group flex w-full items-center justify-between bg-white py-3 text-sm text-gray-400 hover:text-gray-500">
-                                                <span className="font-medium text-gray-900">{section.name}</span>
-                                                <span className="ml-6 flex items-center">
-                                                    <PlusIcon aria-hidden="true" className="h-5 w-5 group-data-[open]:hidden" />
-                                                    <MinusIcon aria-hidden="true" className="h-5 w-5 [.group:not([data-open])_&]:hidden" />
-                                                </span>
-                                            </DisclosureButton>
-                                        </h3>
-                                        <DisclosurePanel className="pt-6">
-                                            <div className="space-y-4">
-                                                {section.options.map((option, optionIdx) => (
-                                                    <div key={option.value} className="flex items-center">
-                                                        <input
-                                                            defaultValue={option.value}
-                                                            defaultChecked={option.checked}
-                                                            id={`filter-${section.id}-${optionIdx}`}
-                                                            name={`${section.id}[]`}
-                                                            type="checkbox"
-                                                            className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
-                                                            onChange={(e) => handleFilterChange(section.id, option.value, e.target.checked)} // Call handleFilterChange
-                                                        />
-                                                        <label htmlFor={`filter-${section.id}-${optionIdx}`} className="ml-3 text-sm text-gray-600">
-                                                            {option.label}
-                                                        </label>
+                                    <Disclosure
+                                        key={section.id}
+                                        as="div"
+                                        className="border-b border-gray-200 py-6"
+                                        // @ts-ignore
+                                        open={openSection === section.id}
+                                        onClick={() => setOpenSection(openSection === section.id ? null : section.id)}
+                                    >
+                                        {({ open }) => (
+                                            <>
+                                                <h3 className="-my-3 flow-root">
+                                                    <DisclosureButton className="group flex w-full items-center justify-between bg-white py-3 text-sm text-gray-400 hover:text-gray-500">
+                                                        <span className="font-medium text-gray-900">{section.name}</span>
+                                                        <span className="ml-6 flex items-center">
+                                                            {open ? (
+                                                                <MinusIcon aria-hidden="true" className="h-5 w-5" />
+                                                            ) : (
+                                                                <PlusIcon aria-hidden="true" className="h-5 w-5" />
+                                                            )}
+                                                        </span>
+                                                    </DisclosureButton>
+                                                </h3>
+                                                <DisclosurePanel className="pt-6">
+                                                    <div className="space-y-4">
+                                                        {section.id === 'publicationDate' ? (
+                                                            <div>
+
+
+                                                                {/* <div className="flex justify-between text-xs text-gray-500">
+                                                                    <span>{yearRange[0]}</span>
+                                                                    <span>{yearRange[1]}</span>
+                                                                </div> */}
+                                                            </div>
+                                                        ) : (
+                                                            section.options.map((option, optionIdx) => (
+                                                                <div key={option.value} className="flex items-center">
+                                                                    <input
+                                                                        defaultValue={option.value}
+                                                                        defaultChecked={option.checked}
+                                                                        id={`filter-${section.id}-${optionIdx}`}
+                                                                        name={`${section.id}[]`}
+                                                                        type="checkbox"
+                                                                        className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                                                                        onChange={(e) => handleFilterChange(section.id, option.value, e.target.checked)} // Call handleFilterChange
+                                                                    />
+                                                                    <label htmlFor={`filter-${section.id}-${optionIdx}`} className="ml-3 text-sm text-gray-600">
+                                                                        {option.label}
+                                                                    </label>
+                                                                </div>
+                                                            ))
+                                                        )}
                                                     </div>
-                                                ))}
-                                            </div>
-                                        </DisclosurePanel>
+                                                </DisclosurePanel>
+                                            </>
+                                        )}
                                     </Disclosure>
                                 ))}
+
+                                <div
+                                    onClick={() => router.push("/")}
+                                    className='w-full mt-4 items-center flex  border p-2 hover:bg-black hover:text-white cursor-pointer   justify-center  rounded-lg'>
+                                    Clear Filters
+                                </div>
                             </form>
 
                             <div className="lg:col-span-3">{/* Your content */}</div>
