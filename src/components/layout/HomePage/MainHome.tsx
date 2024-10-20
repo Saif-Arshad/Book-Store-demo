@@ -1,10 +1,11 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React from 'react'
-import Hero from './Hero'
-
-function MainHome() {
+import SideBar from '../../shared/sidebar'
+function MainHome({ data, meta }: any) {
     return (
         <div>
-            <Hero />
+            <SideBar data={data} meta={meta} />
+
 
         </div>
     )

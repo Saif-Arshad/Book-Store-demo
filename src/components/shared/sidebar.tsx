@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 "use client"
 
@@ -20,6 +21,7 @@ import { ChevronDownIcon, FunnelIcon, MinusIcon, PlusIcon } from '@heroicons/rea
 import { DualRangeSlider } from '../ui/Dual-Slider'
 import useUpdateSearchParams from '@/Hooks/use-update-search'
 import SearchInput from './search-input'
+import BookSection from '../layout/HomePage/BookSection'
 
 
 const sortOptions = [
@@ -60,7 +62,7 @@ function classNames(...classes: string[]): string {
     return classes.filter(Boolean).join(' ')
 }
 
-export default function Example() {
+export default function Example({ data, meta }: any) {
     const { updateSearchParams } = useUpdateSearchParams();
     const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false)
     const [openSection, setOpenSection] = useState<string | null>(null);
@@ -351,7 +353,13 @@ export default function Example() {
                                 </div>
                             </form>
 
-                            <div className="lg:col-span-3">{/* Your content */}</div>
+                            <div className="lg:col-span-3">
+                                <BookSection
+                                    data={data}
+                                    meta={meta}
+                                />
+
+                            </div>
                         </div>
                     </section>
                 </main>
