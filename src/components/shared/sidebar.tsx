@@ -12,12 +12,11 @@ import {
     DisclosureButton,
     DisclosurePanel,
     Menu,
-    MenuButton,
     MenuItem,
     MenuItems,
 } from '@headlessui/react'
 import { XMarkIcon } from '@heroicons/react/24/outline'
-import { ChevronDownIcon, FunnelIcon, MinusIcon, PlusIcon } from '@heroicons/react/20/solid'
+import { FunnelIcon, MinusIcon, PlusIcon } from '@heroicons/react/20/solid'
 import { DualRangeSlider } from '../ui/Dual-Slider'
 import useUpdateSearchParams from '@/Hooks/use-update-search'
 import SearchInput from './search-input'
@@ -48,11 +47,7 @@ const filters = [
         name: 'Genre',
         options: [
             { value: 'fiction', label: 'Fiction', checked: false },
-            { value: 'non-fiction', label: 'Non-Fiction', checked: false },
             { value: 'fantasy', label: 'Fantasy', checked: false },
-            { value: 'mystery', label: 'Mystery', checked: false },
-            { value: 'biography', label: 'Biography', checked: false },
-            { value: 'science-fiction', label: 'Science Fiction', checked: false },
         ],
     },
 
@@ -66,7 +61,7 @@ export default function Example({ data, meta }: any) {
     const { updateSearchParams } = useUpdateSearchParams();
     const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false)
     const [openSection, setOpenSection] = useState<string | null>(null);
-    const [yearRange, setYearRange] = useState<number[]>([1950, 2023]);
+    const [yearRange, setYearRange] = useState<number[]>([1950, 2024]);
     const router = useRouter();
 
     const handleFilterChange = (sectionId: string, value: string, checked: boolean) => {
@@ -139,7 +134,7 @@ export default function Example({ data, meta }: any) {
                                     value={yearRange}
                                     onValueChange={handleSliderChange}
                                     min={1950}
-                                    max={2023}
+                                    max={2024}
                                     step={1}
                                 />
                                 {filters.map((section) => (
@@ -220,15 +215,7 @@ export default function Example({ data, meta }: any) {
 
                         <div className="flex items-center">
                             <Menu as="div" className="relative inline-block text-left">
-                                <div>
-                                    <MenuButton className="group inline-flex justify-center text-sm font-medium text-gray-700 hover:text-gray-900">
-                                        Sort
-                                        <ChevronDownIcon
-                                            aria-hidden="true"
-                                            className="-mr-1 ml-1 h-5 w-5 flex-shrink-0 text-gray-400 group-hover:text-gray-500"
-                                        />
-                                    </MenuButton>
-                                </div>
+
 
                                 <MenuItems
                                     transition
@@ -284,7 +271,7 @@ export default function Example({ data, meta }: any) {
                                     value={yearRange}
                                     onValueChange={handleSliderChange}
                                     min={1950}
-                                    max={2023}
+                                    max={2024}
                                     step={1}
                                 />
                                 {filters.map((section) => (
@@ -354,10 +341,17 @@ export default function Example({ data, meta }: any) {
                             </form>
 
                             <div className="lg:col-span-3">
-                                <BookSection
-                                    data={data}
-                                    meta={meta}
-                                />
+                                {
+                                    data.length == 0 ?
+
+                                        "No Book found with  this Filter"
+                                        :
+
+                                        <BookSection
+                                            data={data}
+                                            meta={meta}
+                                        />
+                                }
 
                             </div>
                         </div>

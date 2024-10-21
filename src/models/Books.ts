@@ -22,7 +22,7 @@ const bookSchema = new Schema({
         trim: true
     },
     publicationDate: {
-        type: Date,
+        type: Number,
         required: true
     },
     description: {

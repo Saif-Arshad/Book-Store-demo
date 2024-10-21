@@ -29,21 +29,29 @@ function BookSection({ data, meta }: any) {
 
         return items;
     };
-
+    const authorOptions = [
+        { value: 'jkr', label: 'J.K. Rowling' },
+        { value: 'grrm', label: 'George R.R. Martin' },
+        { value: 'jrrt', label: 'J.R.R. Tolkien' },
+        { value: 'cslewis', label: 'C.S. Lewis' },
+        { value: 'atwood', label: 'Margaret Atwood' },
+        { value: 'hemingway', label: 'Ernest Hemingway' },
+    ];
+    const getAuthorLabel = (authorValue: string) => {
+        const author = authorOptions.find(option => option.value === authorValue);
+        return author ? author.label : authorValue;
+    };
     return (
         <div className="container mx-auto p-4">
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2  gap-4">
                 {data.map((item: any, index: number) => (
-                    <div key={index} className="border rounded-lg shadow-lg p-4 bg-white">
-                        <h3 className="text-xl font-semibold mb-2">{item.title}</h3>
-                        <p className="text-gray-600 mb-2">Author: {item.author}</p>
+                    <div key={index} className="border rounded-xl p-4 bg-white">
+                        <h3 className="text-lg font-semibold mb-2">{item.title}</h3>
+                        <p className="text-gray-600 mb-2">By {getAuthorLabel(item.author)}</p>
                         <p className="text-gray-600 mb-2">Genre: {item.genre}</p>
                         <p className="text-gray-600 mb-2">
-                            Published: {new Date(item.publicationDate).toLocaleDateString('en-GB')}
+                            Published: {item.publicationDate}
                         </p>
-                        <p className="text-gray-600 mb-2">Page Count: {item.pageCount}</p>
-                        <p className="text-gray-600 mb-2">Language: {item.language}</p>
-                        <p className="text-gray-600 mb-4">Publisher: {item.publisher}</p>
                     </div>
                 ))}
             </div>
