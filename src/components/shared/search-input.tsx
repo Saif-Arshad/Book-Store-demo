@@ -15,16 +15,14 @@ const SearchInput: React.FC<SearchInputProps> = ({
     const searchParams = useSearchParams();
     const [inputValue, setInputValue] = useState<string>("");
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const [debouncedValue, setDebouncedValue] = useState<string>(""); 
+    const [debouncedValue, setDebouncedValue] = useState<string>("");
 
-    // Initialize input with query parameter value from URL (if exists)
     useEffect(() => {
-        const queryValue = searchParams.get("query"); // Get 'query' param from URL
+        const queryValue = searchParams.get("query");
         if (queryValue) {
-            setInputValue(queryValue); // Set input value from URL query
+            setInputValue(queryValue);
         }
     }, []);
-    // Update debounced value after the user stops typing
     useEffect(() => {
         const handler = setTimeout(() => {
             setDebouncedValue(inputValue);
@@ -32,11 +30,10 @@ const SearchInput: React.FC<SearchInputProps> = ({
         }, debounceTime);
 
         return () => {
-            clearTimeout(handler); // Clear timeout if the user types again within the debounce period
+            clearTimeout(handler);
         };
     }, [inputValue]);
 
-    // Handle input changes
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setInputValue(e.target.value);
     };

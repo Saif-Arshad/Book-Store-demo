@@ -90,7 +90,7 @@ export default function Example({ data, meta }: any) {
         setYearRange(newRange);
 
         const currentParams = new URLSearchParams(window.location.search);
-        currentParams.set('publicationDate', `${newRange[0]}-${newRange[1]}`); // Save year range in URL
+        currentParams.set('publicationDate', `${newRange[0]}-${newRange[1]}`); 
         router.push(`?${currentParams.toString()}`);
     };
 
